@@ -1,0 +1,117 @@
+package homework;
+
+import java.util.*;
+
+public class SudokuBoard {
+    static final int GRID = 9;
+
+	public static void main(String[] args) {
+        int[][] board = new int[GRID][GRID];
+
+        Set<Integer>[] rows = new HashSet[GRID];
+        Set<Integer>[] cols = new HashSet[GRID];
+        Set<Integer>[] boxes = new HashSet[GRID];
+
+        for (int i = 0; i < GRID; i++) {
+            rows[i] = new HashSet<>();
+            cols[i] = new HashSet<>();
+            boxes[i] = new HashSet<>();
+        }
+
+        if (fillBoard(board, rows, cols, boxes)) {
+            printBoard(board);
+        } else {
+            System.out.println("Failed to generate a board.");
+        }
+    }
+
+    private static boolean fillBoard(int[][] board, Set<Integer>[] rows, Set<Integer>[] cols, Set<Integer>[] boxes) {
+        for (int row = 0; row < GRID; row++) {
+            for (int col = 0; col < GRID; col++) {
+                if (board[row][col] == 0) {
+                    List<Integer> nums = randNum();
+
+                    for (int num : nums) {
+                        int boxIndex = (row / 3) * 3 + (col / 3);
+
+                        if (!rows[row].contains(num) &&
+                            !cols[col].contains(num) &&
+                            !boxes[boxIndex].contains(num)) {
+
+                            board[row][col] = num;
+                            rows[row].add(num);
+                            cols[col].add(num);
+                            boxes[boxIndex].add(num);
+
+                            if (fillBoard(board, rows, cols, boxes)) {
+                                return true;
+                            }
+
+                            
+                            board[row][col] = 0;
+                            rows[row].remove(num);
+                            cols[col].remove(num);
+                            boxes[boxIndex].remove(num);
+                        }
+                    }
+
+                    return false; 
+                }
+            }
+        }
+        return true; 
+    }
+
+    private static List<Integer> randNum() {
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = 1; i <= 9; i++) numbers.add(i);
+        Collections.shuffle(numbers);
+        return numbers;
+    }
+
+    private static void printBoard(int[][] board) {
+        for (int i = 0; i < GRID; i++) {
+            if (i % 3 == 0) System.out.println("-------------------------");
+            for (int j = 0; j < GRID; j++) {
+                if (j % 3 == 0) System.out.print("| ");
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println("|");
+        }
+        System.out.println("-------------------------");
+    }
+
+	private static boolean NumberInRow (int[][] board, int number, int row) {
+		for(int i=0;i<GRID;i++) {
+			if(board[row][i]==number) {
+				return true;
+			}
+		}
+		return false;
+	}
+	private static boolean NumberInCol (int[][] board, int number, int col) {
+		for(int i=0;i<GRID;i++) {
+			if(board[i][col]==number) {
+				return true;
+			}
+		}
+		return false;
+	}
+	private static boolean NumberInBox (int[][] board, int number, int row,int col) {
+		int localBoxRow=row-row%3;
+		int localBoxCol=col-col%3;
+
+		for(int i=localBoxRow;i<localBoxRow+3;i++) {
+			for(int j=localBoxCol;j<localBoxCol+3;j++) {
+				if(board[i][j]==number) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	private static boolean isValid(int board[][],int number, int row, int col) {
+		return !NumberInRow(board,number,row) && !NumberInCol(board,number,col) &&
+				!NumberInBox(board,number,row,col);
+	}
+}
